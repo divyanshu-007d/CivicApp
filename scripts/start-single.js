@@ -99,11 +99,83 @@ function startSingleApp() {
   // Parse and execute the start command
   const [command, ...args] = config.startCommand.split(' ');
   
+  let isReady = false;
+  let expoAddress = null;
+  let webAddress = null;
+  
   const child = spawn(command, args, {
     cwd: config.folder,
-    stdio: 'inherit',
+    stdio: 'pipe',
     shell: true
   });
+
+  // Capture output to detect when app is ready
+  child.stdout.on('data', (data) => {
+    const output = data.toString();
+    
+    // Forward output to console
+    process.stdout.write(output);
+    
+    // Detect Expo/Metro addresses - improved patterns
+    const expoMatch = output.match(/Metro waiting on (exp:\/\/[^\s\n]+)/);
+    const webMatch = output.match(/Web is waiting on (http:\/\/[^\s\n]+)|Waiting on (http:\/\/[^\s\n]+)/);
+    const qrMatch = output.match(/█/); // QR code detection
+    
+    if (expoMatch) {
+      expoAddress = expoMatch[1];
+    }
+    if (webMatch) {
+      webAddress = webMatch[1] || webMatch[2];
+    }
+    
+    // For React Native/Expo apps, wait for QR code or specific ready indicators
+    if (config.type === 'mobile') {
+      if ((output.includes('Metro waiting on') || 
+           output.includes('Web is waiting on') || 
+           output.includes('Waiting on http://') ||
+           output.includes('Press s │ switch to') ||
+           qrMatch) && !isReady) {
+        isReady = true;
+        // Small delay to ensure all addresses are captured
+        setTimeout(showReadyMessage, 1000);
+      }
+    }
+    
+    // For Next.js apps, wait for "Ready in" message
+    if (config.type === 'web' && output.includes('Ready in')) {
+      if (!isReady) {
+        isReady = true;
+        showReadyMessage();
+      }
+    }
+  });
+
+  child.stderr.on('data', (data) => {
+    process.stderr.write(data);
+  });
+
+  function showReadyMessage() {
+    log(`\n${info.emoji} ${info.name} is ready!`, info.color + colors.bright);
+    
+    if (config.type === 'mobile') {
+      if (expoAddress) {
+        log(`📱 Expo: ${expoAddress}`, colors.magenta);
+      }
+      if (webAddress) {
+        log(`🌐 Web: ${webAddress}`, colors.cyan);
+      } else {
+        // Fallback for web address
+        log(`🌐 Web: http://localhost:8081`, colors.cyan);
+      }
+      log(`📱 Scan the QR code above with Expo Go app`, colors.green);
+      log(`🌐 Or open web version in your browser`, colors.blue);
+    } else {
+      log(`🌐 Access it at: http://localhost:${config.port}`, colors.cyan);
+    }
+    
+    log(`Press Ctrl+C to stop`, colors.yellow);
+    log('', colors.reset);
+  }
 
   // Handle process events
   child.on('close', (code) => {
@@ -136,13 +208,15 @@ function startSingleApp() {
     child.kill('SIGTERM');
   });
 
-  // Success message
+  // Fallback timeout message (in case detection fails)
   setTimeout(() => {
-    log(`\n${info.emoji} ${info.name} should be starting up!`, info.color + colors.bright);
-    log(`🌐 Access it at: http://localhost:${config.port}`, colors.cyan);
-    log(`Press Ctrl+C to stop`, colors.yellow);
-    log('', colors.reset);
-  }, 3000);
+    if (!isReady) {
+      log(`\n${info.emoji} ${info.name} is starting up...`, info.color);
+      log(`Check the output above for QR code and access URLs`, colors.cyan);
+      log(`Press Ctrl+C to stop`, colors.yellow);
+      log('', colors.reset);
+    }
+  }, 15000); // Increased timeout for Expo apps
 }
 
 // Start the app
