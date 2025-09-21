@@ -7,6 +7,9 @@
     "setup": "node scripts/setup.js",
     "start": "node scripts/start.js",
     "dev": "npm run start",
+    "admin": "node scripts/start-single.js admin-dashboard",
+    "citizen": "node scripts/start-single.js citizen-app",
+    "engineer": "node scripts/start-single.js field-engineer-app",
     "install-all": "node scripts/install-deps.js",
     "clean": "node scripts/clean.js",
     "status": "node scripts/status.js"

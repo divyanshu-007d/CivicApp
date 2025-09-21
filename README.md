@@ -159,7 +159,10 @@ npm start
 ### Available Commands
 ```bash
 npm run setup    # One-time setup for new team members (clone all repos and install dependencies)
-npm start        # Start everything for demo/testing (runs all 3 applications concurrently)  
+npm start        # Start all applications concurrently (for demos and testing)  
+npm run admin    # Start only the Admin Dashboard (Next.js web app)
+npm run citizen  # Start only the Citizen App (React Native mobile app)
+npm run engineer # Start only the Field Engineer App (React Native mobile app)
 npm run status   # Check what's happening (see git status and info for all repos)
 npm run clean    # Clean all node_modules folders (fresh start if needed)
 ```
@@ -167,7 +170,12 @@ npm run clean    # Clean all node_modules folders (fresh start if needed)
 ### Individual App Commands
 After running `npm run setup`, you can also work on apps individually:
 ```bash
-# Work on specific apps (your daily development)
+# Quick start individual apps (recommended for daily development)
+npm run admin    # 🌐 Admin Dashboard → http://localhost:3000
+npm run citizen  # 📱 Citizen App → http://localhost:19006  
+npm run engineer # 🔧 Field Engineer App → http://localhost:19007
+
+# OR work directly in app folders
 cd citizen-app && npm start          # Citizen mobile app
 cd admin-dashboard && npm run dev    # Admin web dashboard  
 cd field-engineer-app && npm start   # Field engineer mobile app
@@ -178,16 +186,20 @@ cd field-engineer-app && npm start   # Field engineer mobile app
 # First time setup (for new team members)
 npm install && npm run setup
 
-# Daily development (work on individual apps)
-cd citizen-app
-# Make changes, commit, push normally
+# Daily development - Start individual apps
+npm run admin     # Work on admin dashboard
+npm run citizen   # Work on citizen mobile app  
+npm run engineer  # Work on field engineer app
 
 # Demo/Testing (start everything together)
 npm start
-# Opens:
+# Opens all applications:
 # 🌐 Admin Dashboard: http://localhost:3000
 # 📱 Citizen App: http://localhost:19006  
 # 🔧 Field Engineer App: http://localhost:19007
+
+# Check status anytime
+npm run status
 ```
 
 ## 📂 Project Structure
