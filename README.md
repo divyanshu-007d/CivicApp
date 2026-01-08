@@ -234,13 +234,7 @@ This project is developed for Smart India Hackathon 2025 and is intended for ope
 **Organization**: Government of Jharkhand  
 **Category**: Software  
 
-## 📞 Contact
 
-For queries and collaboration:
-- Email: [your-email@example.com]
-- GitHub: [@divyanshu-007d](https://github.com/divyanshu-007d)
-
----
 
 **Digital India 🇮🇳 | Smart Cities Mission | AI for Good**
 
